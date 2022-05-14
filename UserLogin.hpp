@@ -39,41 +39,74 @@ UserLogin::UserLogin() {
 void UserLogin::readIn(const string& filename) {
     
     // TO DO
-  
+
+    ifstream myReadFile;
+    myReadFile.open(filename);
+    char output[100];
+    string userName = "^";
+    string passWord;
+
+    if (myReadFile.is_open()) {
+        while (!myReadFile.eof()) {
+
+            myReadFile >> userName;
+            myReadFile >> passWord;
+            
+            if (!validateUser(userName)) {
+                table.insert(std::pair<string,string>(userName,passWord));
+            } else if (authenticateUser(userName, passWord)) {
+                cout << userName << " is authenticated.\n";
+            } else {
+                cout << userName << " already Exists.\n";
+            }
+        }
+    }
+
+    myReadFile.close();
 }
 
 size_t UserLogin::numberOfUsers() {
 
     // TO DO
-
+    return table.size();
 }
 
 string UserLogin::passWordCheck(const string& userName) {
 
     // TO DO
-
+    if (table.count(userName) == 0) return "Non-existent User";
+    return table.at(userName);
 }
 
 size_t UserLogin::wordBucketIdMethod1(const string& userName) {
 
     // TO DO
-
+    if (table.count(userName) == 0) return -1;
+    return table.bucket(userName);
 }
 
 size_t UserLogin::wordBucketIdMethod2(const string& userName) {
     
     // TO DO
-    
+    size_t n = table.bucket_count();
+    for (size_t i=0; i<n; ++i) {
+        for (auto it = table.begin(i); it!=table.end(i); ++it)
+            if (it->first == userName) return i;
+    }
+    return -1;
 }
 
 bool UserLogin::validateUser(const string& userName) {
     
     // TO DO
-     
+    if (table.count(userName) == 0) return false;
+    return true;
 }
 
 bool UserLogin::authenticateUser(const string& userName, const string& passWord) { 
     
     // TO DO
-      
+    if (table.count(userName) == 0) return false;
+    if (table.at(userName) != passWord) return false;
+    return true;
  }
